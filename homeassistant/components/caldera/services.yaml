@@ -1,0 +1,57 @@
+set_temperature:
+  description: Set the Caldera spa temperature.
+  target:
+    entity:
+      integration: caldera
+      domain: climate
+  fields:
+    temperature:
+      description: Target temperature between 80-104°F (26.5-40°C).
+      example: 102
+      required: true
+      selector:
+        number:
+          min: 80
+          max: 104
+          step: 1
+          unit_of_measurement: °F
+
+set_pump:
+  description: Set the Caldera spa pump speed.
+  target:
+    entity:
+      integration: caldera
+      domain: switch
+  fields:
+    pump_number:
+      description: Pump number (1-3).
+      example: 1
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 3
+          step: 1
+    pump_speed:
+      description: "Pump speed (0=Off, 1=Low, 2=High)."
+      example: 2
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 2
+          step: 1
+
+set_lights:
+  description: Set the Caldera spa lights.
+  target:
+    entity:
+      integration: caldera
+      domain: light
+  fields:
+    state:
+      description: Whether to turn the lights on or off.
+      example: true
+      required: true
+      selector:
+        boolean:

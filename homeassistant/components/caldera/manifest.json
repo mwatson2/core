@@ -1,0 +1,10 @@
+{
+  "domain": "caldera",
+  "name": "Caldera Spas",
+  "codeowners": [],
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/caldera",
+  "iot_class": "cloud_polling",
+  "requirements": ["pycaldera==0.1.0"],
+  "version": "0.1.0"
+}

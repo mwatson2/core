@@ -1,0 +1,70 @@
+"""Light platform for Caldera Spas integration."""
+
+from __future__ import annotations
+
+import logging
+from typing import Any
+
+from pycaldera import AsyncCalderaClient, SpaControlError
+
+from homeassistant.components.light import LightEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+
+from .const import DOMAIN
+from .coordinator import CalderaDataUpdateCoordinator
+from .entity import CalderaEntity
+
+_LOGGER = logging.getLogger(__name__)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    """Set up Caldera Spa light from config entry."""
+    data = hass.data[DOMAIN][entry.entry_id]
+    coordinator = data["coordinator"]
+    client = data["client"]
+
+    async_add_entities([CalderaLight(coordinator, client)])
+
+
+class CalderaLight(CalderaEntity, LightEntity):
+    """Caldera Spa light entity."""
+
+    _attr_name = "Light"
+
+    def __init__(
+        self,
+        coordinator: CalderaDataUpdateCoordinator,
+        client: AsyncCalderaClient,
+    ) -> None:
+        """Initialize the light entity."""
+        super().__init__(coordinator, client)
+        # Use unique_id from spa name
+        self._attr_unique_id = f"{self.coordinator.data['status'].spaName}_light"
+
+    @property
+    def is_on(self) -> bool:
+        """Return True if the light is on."""
+        return self.coordinator.data["settings"].light_status
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn on the light."""
+        try:
+            await self.client.set_lights(True)
+            await self.coordinator.async_request_refresh()
+        except SpaControlError as err:
+            raise HomeAssistantError(f"Failed to turn on the light: {err}") from err
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn off the light."""
+        try:
+            await self.client.set_lights(False)
+            await self.coordinator.async_request_refresh()
+        except SpaControlError as err:
+            raise HomeAssistantError(f"Failed to turn off the light: {err}") from err
