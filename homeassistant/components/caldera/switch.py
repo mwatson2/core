@@ -19,7 +19,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .const import DOMAIN
 from .coordinator import CalderaDataUpdateCoordinator
 from .entity import CalderaEntity
 
@@ -35,9 +34,9 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up Caldera Spa pump switches from config entry."""
-    data = hass.data[DOMAIN][entry.entry_id]
-    coordinator = data["coordinator"]
-    client = data["client"]
+    runtime_data = entry.runtime_data
+    coordinator = runtime_data.coordinator
+    client = runtime_data.client
 
     # Create a switch for each pump (1-based indexing)
     switches = [

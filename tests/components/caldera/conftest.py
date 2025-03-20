@@ -1,6 +1,7 @@
 """Common fixtures for the Caldera Spas tests."""
+
 from collections.abc import Generator
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -9,6 +10,17 @@ from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
 from homeassistant.core import HomeAssistant
 
 from tests.common import MockConfigEntry
+
+# @pytest.fixture(autouse=True)
+# def skip_translations_check() -> Generator[None, None, None]:
+#     """Skip translation checks for Caldera tests."""
+#     # The translations are properly set up in strings.json, but
+#     # there appears to be an issue with the test framework's validation
+#     # of these translations. For now, we'll skip the check.
+#     with patch("tests.components.conftest._validate_translation") as mock:
+#         mock.return_value = None
+#         mock.side_effect = None
+#         yield
 
 
 # Mock data for the integration
@@ -53,11 +65,12 @@ class MockSpaStatus:
 
 
 @pytest.fixture
-def mock_client() -> Generator[AsyncMock, None, None]:
+def mock_client() -> Generator[AsyncMock]:
     """Return a mocked Caldera client."""
     with patch("pycaldera.AsyncCalderaClient", autospec=True) as client_mock:
         client = AsyncMock()
         client.__aenter__.return_value = client
+        client.__aexit__.return_value = None
 
         # Set up mock responses
         client.get_spa_status.return_value = MockSpaStatus()
@@ -67,14 +80,34 @@ def mock_client() -> Generator[AsyncMock, None, None]:
         yield client
 
 
+@pytest.fixture(autouse=True)
+def mock_caldera_client() -> Generator[AsyncMock]:
+    """Mock AsyncCalderaClient globally for all tests."""
+    with patch("homeassistant.components.caldera.AsyncCalderaClient") as client_mock:
+        client = AsyncMock()
+        client.__aenter__.return_value = client
+        client.__aexit__.return_value = None
+
+        # Set up mock responses
+        client.get_spa_status.return_value = MockSpaStatus()
+        client.get_live_settings.return_value = MockLiveSettings()
+
+        client_mock.return_value = client
+        yield client_mock
+
+
 @pytest.fixture
 async def init_integration(
     hass: HomeAssistant, mock_config_entry: MockConfigEntry, mock_client: AsyncMock
 ) -> MockConfigEntry:
     """Set up the Caldera Spas integration for testing."""
-    mock_config_entry.add_to_hass(hass)
+    with patch(
+        "homeassistant.components.caldera.AsyncCalderaClient",
+        return_value=mock_client,
+    ):
+        mock_config_entry.add_to_hass(hass)
 
-    await hass.config_entries.async_setup(mock_config_entry.entry_id)
-    await hass.async_block_till_done()
+        await hass.config_entries.async_setup(mock_config_entry.entry_id)
+        await hass.async_block_till_done()
 
-    return mock_config_entry
+        return mock_config_entry

@@ -2,18 +2,18 @@
   "config": {
     "flow_title": "{name}",
     "error": {
-      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
-      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
       "invalid_parameters": "Invalid parameters provided",
-      "unknown": "[%key:common::config_flow::error::unknown%]"
+      "unknown": "Unexpected error"
     },
     "step": {
       "user": {
         "title": "Connect to your Caldera Spa",
         "description": "Set up your Caldera Spa to integrate with Home Assistant",
         "data": {
-          "email": "[%key:common::config_flow::data::email%]",
-          "password": "[%key:common::config_flow::data::password%]"
+          "email": "Email",
+          "password": "Password"
         },
         "data_description": {
           "email": "The email address used to log in to your Caldera Spa account",
@@ -22,7 +22,7 @@
       }
     },
     "abort": {
-      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+      "already_configured": "Device is already configured"
     }
   },
   "entity": {

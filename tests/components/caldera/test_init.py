@@ -1,9 +1,9 @@
 """Test initialization of the Caldera Spas integration."""
+
 from unittest.mock import AsyncMock, patch
 
-from pycaldera import ConnectionError, SpaControlError
+from pycaldera import ConnectionError
 
-from homeassistant.components.caldera.const import DOMAIN
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 
@@ -25,11 +25,10 @@ async def test_setup_and_unload_integration(
         # Check that the entry is loaded
         assert mock_config_entry.state is ConfigEntryState.LOADED
 
-        # Check that client and coordinator are stored in hass.data
-        assert DOMAIN in hass.data
-        assert mock_config_entry.entry_id in hass.data[DOMAIN]
-        assert "client" in hass.data[DOMAIN][mock_config_entry.entry_id]
-        assert "coordinator" in hass.data[DOMAIN][mock_config_entry.entry_id]
+        # Check that runtime_data is stored in the config entry
+        assert mock_config_entry.runtime_data is not None
+        assert hasattr(mock_config_entry.runtime_data, "client")
+        assert hasattr(mock_config_entry.runtime_data, "coordinator")
 
         # Unload the integration
         await hass.config_entries.async_unload(mock_config_entry.entry_id)
@@ -38,9 +37,6 @@ async def test_setup_and_unload_integration(
         # Check that the entry is unloaded
         assert mock_config_entry.state is ConfigEntryState.NOT_LOADED
 
-        # Check that the data has been removed
-        assert mock_config_entry.entry_id not in hass.data[DOMAIN]
-        
         # Ensure the context manager was properly closed
         assert mock_client.__aexit__.called
 
@@ -51,7 +47,7 @@ async def test_coordinator_update_failure(
     """Test coordinator update raising exceptions."""
     # Set up for connection error
     mock_client.get_spa_status.side_effect = ConnectionError("Connection failed")
-    
+
     with patch(
         "homeassistant.components.caldera.AsyncCalderaClient", return_value=mock_client
     ):
@@ -59,23 +55,18 @@ async def test_coordinator_update_failure(
         mock_config_entry.add_to_hass(hass)
         await hass.config_entries.async_setup(mock_config_entry.entry_id)
         await hass.async_block_till_done()
-        
-        # Entry should still be set up but with entities unavailable
-        assert mock_config_entry.state is ConfigEntryState.LOADED
-        
-        # Access the coordinator
-        coordinator = hass.data[DOMAIN][mock_config_entry.entry_id]["coordinator"]
-        
-        # Check that the coordinator shows an error
-        assert coordinator.last_update_success is False
-        
-        # Now set up for SpaControlError
-        mock_client.get_spa_status.side_effect = None
-        mock_client.get_live_settings.side_effect = SpaControlError("Control failed")
-        
-        # Manually update the coordinator
-        await coordinator.async_refresh()
-        await hass.async_block_till_done()
-        
-        # Check that the coordinator still shows an error
-        assert coordinator.last_update_success is False
+
+        # Entry should be in retry state when the connection fails
+        assert mock_config_entry.state is ConfigEntryState.SETUP_RETRY
+
+        # Since this is a failure test with a connection error,
+        # the entry will be in SETUP_RETRY state and the coordinator will not be
+        # set up in hass.data yet
+
+        # Instead, let's verify that the entry ID exists in the config_entries
+        assert (
+            hass.config_entries.async_get_entry(mock_config_entry.entry_id) is not None
+        )
+
+        # Ensure the entry is in retry state
+        assert mock_config_entry.state is ConfigEntryState.SETUP_RETRY

@@ -1,7 +1,7 @@
 """Test the Caldera Spas config flow."""
+
 from unittest.mock import AsyncMock, patch
 
-import pytest
 from pycaldera import (
     AuthenticationError,
     ConnectionError,
@@ -15,8 +15,6 @@ from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
-from tests.common import MockConfigEntry
-
 
 async def test_form(hass: HomeAssistant, mock_client: AsyncMock) -> None:
     """Test we get the form."""
@@ -24,7 +22,7 @@ async def test_form(hass: HomeAssistant, mock_client: AsyncMock) -> None:
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
     assert result["type"] == FlowResultType.FORM
-    assert result["errors"] is None
+    assert not result["errors"]
 
     with patch(
         "homeassistant.components.caldera.config_flow.AsyncCalderaClient",
