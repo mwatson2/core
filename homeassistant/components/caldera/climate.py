@@ -60,8 +60,9 @@ class CalderaClimate(CalderaEntity, ClimateEntity):
     ) -> None:
         """Initialize the climate entity."""
         super().__init__(coordinator, client)
-        # Use unique_id from spa name
-        self._attr_unique_id = f"{self.coordinator.data['status'].spaName}_temperature"
+        self._attr_unique_id = (
+            f"{self.coordinator.data['status'].spaSerialNumber}_temperature"
+        )
 
     @property
     def current_temperature(self) -> float | None:

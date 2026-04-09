@@ -73,13 +73,18 @@ async def test_set_temperature_error(
         "Invalid temperature"
     )
 
+    # Use a temperature inside the entity's allowed 26.7–40°C range so the
+    # call reaches our async_set_temperature override (which then re-raises
+    # the mocked pycaldera InvalidParameterError as HomeAssistantError).
+    # Going outside the range would short-circuit on upstream climate
+    # validation and never exercise our code path.
     with pytest.raises(HomeAssistantError):
         await hass.services.async_call(
             CLIMATE_DOMAIN,
             SERVICE_SET_TEMPERATURE,
             {
                 ATTR_ENTITY_ID: "climate.mycalderaspa_temperature",
-                ATTR_TEMPERATURE: 48.9,  # 120°F converted to Celsius
+                ATTR_TEMPERATURE: 39.4,  # 103°F, within range
             },
             blocking=True,
         )

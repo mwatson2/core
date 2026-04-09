@@ -19,10 +19,24 @@
           "email": "The email address used to log in to your Caldera Spa account",
           "password": "The password for your Caldera Spa account"
         }
+      },
+      "reauth_confirm": {
+        "title": "Reauthenticate Integration",
+        "description": "The credentials for your Caldera Spa account are no longer valid. Please re-enter them to reconnect.",
+        "data": {
+          "email": "Email",
+          "password": "Password"
+        },
+        "data_description": {
+          "email": "The email address used to log in to your Caldera Spa account",
+          "password": "The password for your Caldera Spa account"
+        }
       }
     },
     "abort": {
-      "already_configured": "Device is already configured"
+      "already_configured": "Device is already configured",
+      "reauth_successful": "Re-authentication was successful",
+      "wrong_account": "The credentials provided are for a different Caldera Spa than the one originally configured."
     }
   },
   "entity": {

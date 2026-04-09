@@ -2,7 +2,8 @@
 
 from unittest.mock import AsyncMock, patch
 
-from pycaldera import ConnectionError
+from pycaldera import AuthenticationError, ConnectionError
+import pytest
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
@@ -70,3 +71,45 @@ async def test_coordinator_update_failure(
 
         # Ensure the entry is in retry state
         assert mock_config_entry.state is ConfigEntryState.SETUP_RETRY
+
+
+@pytest.mark.parametrize(
+    "ignore_translations",
+    [
+        # The upstream `homeassistant` integration's reauth issue translation
+        # is referenced via [%key%] in strings.json but the resolved en.json
+        # is not present in this branch's snapshot of dev. The translation
+        # will be available again on rebase to current dev.
+        [
+            "component.homeassistant.issues.config_entry_reauth.title",
+            "component.homeassistant.issues.config_entry_reauth.description",
+        ],
+    ],
+)
+async def test_coordinator_auth_failure_triggers_reauth(
+    hass: HomeAssistant, mock_config_entry: MockConfigEntry, mock_client: AsyncMock
+) -> None:
+    """An AuthenticationError during refresh should put the entry in SETUP_ERROR.
+
+    The coordinator translates AuthenticationError into ConfigEntryAuthFailed,
+    which Home Assistant uses to trigger the reauth flow. The config entry
+    ends up in SETUP_ERROR state and a reauth flow is started in the
+    background.
+    """
+    mock_client.get_spa_status.side_effect = AuthenticationError(
+        "Credentials rejected"
+    )
+
+    with patch(
+        "homeassistant.components.caldera.AsyncCalderaClient", return_value=mock_client
+    ):
+        mock_config_entry.add_to_hass(hass)
+        await hass.config_entries.async_setup(mock_config_entry.entry_id)
+        await hass.async_block_till_done()
+
+        # ConfigEntryAuthFailed during first refresh leaves the entry in
+        # SETUP_ERROR (not SETUP_RETRY), and HA queues a reauth flow.
+        assert mock_config_entry.state is ConfigEntryState.SETUP_ERROR
+
+        flows = hass.config_entries.flow.async_progress_by_handler("caldera")
+        assert any(flow["context"].get("source") == "reauth" for flow in flows)

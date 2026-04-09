@@ -44,8 +44,9 @@ class CalderaLight(CalderaEntity, LightEntity):
     ) -> None:
         """Initialize the light entity."""
         super().__init__(coordinator, client)
-        # Use unique_id from spa name
-        self._attr_unique_id = f"{self.coordinator.data['status'].spaName}_light"
+        self._attr_unique_id = (
+            f"{self.coordinator.data['status'].spaSerialNumber}_light"
+        )
 
     @property
     def is_on(self) -> bool:

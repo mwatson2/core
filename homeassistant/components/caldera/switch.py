@@ -61,7 +61,7 @@ class CalderaPumpSwitch(CalderaEntity, SwitchEntity):
         self.pump_number = pump_number
         self._attr_name = f"Pump {pump_number}"
         self._attr_unique_id = (
-            f"{self.coordinator.data['status'].spaName}_pump_{pump_number}"
+            f"{self.coordinator.data['status'].spaSerialNumber}_pump_{pump_number}"
         )
 
     @property

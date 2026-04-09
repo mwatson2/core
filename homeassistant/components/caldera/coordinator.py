@@ -3,9 +3,15 @@
 import logging
 from typing import Any
 
-from pycaldera import AsyncCalderaClient, ConnectionError, SpaControlError
+from pycaldera import (
+    AsyncCalderaClient,
+    AuthenticationError,
+    ConnectionError,
+    SpaControlError,
+)
 
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN, UPDATE_INTERVAL
@@ -42,6 +48,12 @@ class CalderaDataUpdateCoordinator(DataUpdateCoordinator):
 
             # Get detailed live settings
             settings = await self.client.get_live_settings()
+        except AuthenticationError as error:
+            # Surface auth failures as ConfigEntryAuthFailed so Home Assistant
+            # triggers the reauth flow instead of looping the coordinator.
+            raise ConfigEntryAuthFailed(
+                f"Authentication with Caldera API failed: {error}"
+            ) from error
         except ConnectionError as error:
             raise UpdateFailed(
                 f"Error communicating with Caldera API: {error}"

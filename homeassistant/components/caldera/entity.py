@@ -24,13 +24,15 @@ class CalderaEntity(CoordinatorEntity[CalderaDataUpdateCoordinator]):
         """Initialize the entity."""
         super().__init__(coordinator)
         self.client = client
-        # Use spa name from status for device info
-        spa_name = self.coordinator.data["status"].spaName
+        status = self.coordinator.data["status"]
 
-        # Set up device info for all entities
+        # Identify the device by its spa serial number — it is stable
+        # across user renames in the Caldera app. The display name
+        # still comes from the user-facing spa name.
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, spa_name)},
-            name=spa_name,
+            identifiers={(DOMAIN, status.spaSerialNumber)},
+            name=status.spaName,
             manufacturer="Caldera Spas",
-            model=self.coordinator.data["status"].spaModel,
+            model=status.spaModel,
+            serial_number=status.spaSerialNumber,
         )

@@ -34,7 +34,7 @@ def mock_config_entry() -> MockConfigEntry:
             CONF_PASSWORD: "password",
         },
         title="Caldera Spa",
-        unique_id="MyCalderaSpa",
+        unique_id="REU21D4211094",
     )
 
 
@@ -58,6 +58,7 @@ class MockSpaStatus:
     def __init__(self) -> None:
         """Initialize mock status."""
         self.spaName = "MyCalderaSpa"
+        self.spaSerialNumber = "REU21D4211094"
         self.spaModel = "Caldera Utopia"
         self.ctrl_head_water_temperature = 100
         self.is_heating = True
