@@ -37,10 +37,7 @@ rules:
   integration-owner: todo
   log-when-unavailable: todo
   parallel-updates: todo
-  reauthentication-flow:
-    status: exempt
-    comment: |
-      This integration does not require authentication.
+  reauthentication-flow: done
   test-coverage: todo
   # Gold
   devices: todo
