@@ -8,7 +8,7 @@ import pytest
 from homeassistant.components.climate import (
     ATTR_CURRENT_TEMPERATURE,
     ATTR_HVAC_ACTION,
-    ATTR_HVAC_MODE,
+    ATTR_HVAC_MODES,
     DOMAIN as CLIMATE_DOMAIN,
     SERVICE_SET_TEMPERATURE,
     HVACAction,
@@ -33,6 +33,11 @@ async def test_climate_entity_attributes(
     )  # 100°F converted to Celsius
     assert state.attributes[ATTR_TEMPERATURE] == 38.9  # 102°F converted to Celsius
     assert state.attributes[ATTR_HVAC_ACTION] == HVACAction.HEATING
+
+    # Caldera spas are always in heat-to-setpoint mode — HEAT is the
+    # only supported HVAC mode; HEATING vs IDLE is signalled through
+    # hvac_action instead.
+    assert state.attributes[ATTR_HVAC_MODES] == [HVACMode.HEAT]
 
     # Make sure the min/max temps are set properly
     assert state.attributes["min_temp"] == 26.7  # 80°F converted to Celsius
@@ -104,28 +109,3 @@ async def test_set_temperature_error(
         )
 
 
-async def test_set_hvac_mode(
-    hass: HomeAssistant, init_integration: MockConfigEntry
-) -> None:
-    """Test setting HVAC mode (which isn't directly supported)."""
-    # Calling this service would normally log a warning that it's not supported
-    # But that's hard to test here, so we just make sure the entity still exists after
-
-    state_before = hass.states.get("climate.mycalderaspa_temperature")
-    assert state_before
-
-    # Try to set mode to OFF
-    await hass.services.async_call(
-        CLIMATE_DOMAIN,
-        "set_hvac_mode",
-        {
-            ATTR_ENTITY_ID: "climate.mycalderaspa_temperature",
-            ATTR_HVAC_MODE: HVACMode.OFF,
-        },
-        blocking=True,
-    )
-
-    # Entity should still exist and be in the same state
-    state_after = hass.states.get("climate.mycalderaspa_temperature")
-    assert state_after
-    assert state_after.state == state_before.state
