@@ -59,6 +59,12 @@
       },
       "pump_3": {
         "name": "Pump 3"
+      },
+      "temperature_lock": {
+        "name": "Temperature lock"
+      },
+      "spa_lock": {
+        "name": "Spa lock"
       }
     }
   }

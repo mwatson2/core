@@ -49,6 +49,9 @@ class MockLiveSettings:
         self.pump1_status = 2  # PUMP_HIGH
         self.pump2_status = 1  # PUMP_LOW
         self.pump3_status = 0  # PUMP_OFF
+        # Lock state strings: "1" = disabled/unlocked, "2" = enabled.
+        self.usr_set_temp_lock_state = "2"
+        self.usr_set_spa_lock_state = "1"
 
 
 # Mock for SpaStatus

@@ -12,9 +12,11 @@ from homeassistant.const import (
     SERVICE_TURN_ON,
     STATE_OFF,
     STATE_ON,
+    EntityCategory,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import entity_registry as er
 
 from tests.common import MockConfigEntry
 
@@ -152,5 +154,100 @@ async def test_pump_turn_off_error(
             {
                 ATTR_ENTITY_ID: "switch.mycalderaspa_pump_1",
             },
+            blocking=True,
+        )
+
+
+async def test_lock_switches_initial_state(
+    hass: HomeAssistant, init_integration: MockConfigEntry
+) -> None:
+    """The temperature lock starts engaged, the spa lock does not (per mock)."""
+    temp_lock = hass.states.get("switch.mycalderaspa_temperature_lock")
+    assert temp_lock
+    assert temp_lock.state == STATE_ON
+
+    spa_lock = hass.states.get("switch.mycalderaspa_spa_lock")
+    assert spa_lock
+    assert spa_lock.state == STATE_OFF
+
+
+async def test_lock_switches_are_config_category(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    """Lock switches are tagged as configuration entities."""
+    for entity_id in (
+        "switch.mycalderaspa_temperature_lock",
+        "switch.mycalderaspa_spa_lock",
+    ):
+        entry = entity_registry.async_get(entity_id)
+        assert entry is not None
+        assert entry.entity_category is EntityCategory.CONFIG
+
+
+async def test_engage_temperature_lock(
+    hass: HomeAssistant, init_integration: MockConfigEntry, mock_client: AsyncMock
+) -> None:
+    """Calling turn_on on the temperature lock calls set_temp_lock(True)."""
+    await hass.services.async_call(
+        SWITCH_DOMAIN,
+        SERVICE_TURN_ON,
+        {ATTR_ENTITY_ID: "switch.mycalderaspa_temperature_lock"},
+        blocking=True,
+    )
+    mock_client.set_temp_lock.assert_called_once_with(True)
+
+
+async def test_release_temperature_lock(
+    hass: HomeAssistant, init_integration: MockConfigEntry, mock_client: AsyncMock
+) -> None:
+    """Calling turn_off on the temperature lock calls set_temp_lock(False)."""
+    await hass.services.async_call(
+        SWITCH_DOMAIN,
+        SERVICE_TURN_OFF,
+        {ATTR_ENTITY_ID: "switch.mycalderaspa_temperature_lock"},
+        blocking=True,
+    )
+    mock_client.set_temp_lock.assert_called_once_with(False)
+
+
+async def test_engage_spa_lock(
+    hass: HomeAssistant, init_integration: MockConfigEntry, mock_client: AsyncMock
+) -> None:
+    """Calling turn_on on the spa lock calls set_spa_lock(True)."""
+    await hass.services.async_call(
+        SWITCH_DOMAIN,
+        SERVICE_TURN_ON,
+        {ATTR_ENTITY_ID: "switch.mycalderaspa_spa_lock"},
+        blocking=True,
+    )
+    mock_client.set_spa_lock.assert_called_once_with(True)
+
+
+async def test_release_spa_lock(
+    hass: HomeAssistant, init_integration: MockConfigEntry, mock_client: AsyncMock
+) -> None:
+    """Calling turn_off on the spa lock calls set_spa_lock(False)."""
+    await hass.services.async_call(
+        SWITCH_DOMAIN,
+        SERVICE_TURN_OFF,
+        {ATTR_ENTITY_ID: "switch.mycalderaspa_spa_lock"},
+        blocking=True,
+    )
+    mock_client.set_spa_lock.assert_called_once_with(False)
+
+
+async def test_lock_error_raises_home_assistant_error(
+    hass: HomeAssistant, init_integration: MockConfigEntry, mock_client: AsyncMock
+) -> None:
+    """SpaControlError from the client surfaces as HomeAssistantError."""
+    mock_client.set_temp_lock.side_effect = SpaControlError("Connection error")
+
+    with pytest.raises(HomeAssistantError):
+        await hass.services.async_call(
+            SWITCH_DOMAIN,
+            SERVICE_TURN_ON,
+            {ATTR_ENTITY_ID: "switch.mycalderaspa_temperature_lock"},
             blocking=True,
         )
