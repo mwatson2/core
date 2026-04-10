@@ -41,7 +41,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await client.__aenter__()  # pylint: disable=unnecessary-dunder-call
 
     # Create coordinator for data updates
-    coordinator = CalderaDataUpdateCoordinator(hass, client)
+    coordinator = CalderaDataUpdateCoordinator(hass, entry, client)
     await coordinator.async_config_entry_first_refresh()
 
     # Store runtime data in config entry

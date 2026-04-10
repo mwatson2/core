@@ -3,7 +3,6 @@
 from unittest.mock import AsyncMock, patch
 
 from pycaldera import AuthenticationError, ConnectionError
-import pytest
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
@@ -73,19 +72,6 @@ async def test_coordinator_update_failure(
         assert mock_config_entry.state is ConfigEntryState.SETUP_RETRY
 
 
-@pytest.mark.parametrize(
-    "ignore_translations",
-    [
-        # The upstream `homeassistant` integration's reauth issue translation
-        # is referenced via [%key%] in strings.json but the resolved en.json
-        # is not present in this branch's snapshot of dev. The translation
-        # will be available again on rebase to current dev.
-        [
-            "component.homeassistant.issues.config_entry_reauth.title",
-            "component.homeassistant.issues.config_entry_reauth.description",
-        ],
-    ],
-)
 async def test_coordinator_auth_failure_triggers_reauth(
     hass: HomeAssistant, mock_config_entry: MockConfigEntry, mock_client: AsyncMock
 ) -> None:

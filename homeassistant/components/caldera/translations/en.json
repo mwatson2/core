@@ -1,71 +1,71 @@
 {
-  "config": {
-    "flow_title": "{name}",
-    "error": {
-      "cannot_connect": "Failed to connect",
-      "invalid_auth": "Invalid authentication",
-      "invalid_parameters": "Invalid parameters provided",
-      "unknown": "Unexpected error"
-    },
-    "step": {
-      "user": {
-        "title": "Connect to your Caldera Spa",
-        "description": "Set up your Caldera Spa to integrate with Home Assistant",
-        "data": {
-          "email": "Email",
-          "password": "Password"
+    "config": {
+        "abort": {
+            "already_configured": "Device is already configured",
+            "reauth_successful": "Re-authentication was successful",
+            "wrong_account": "The credentials provided are for a different Caldera Spa than the one originally configured."
         },
-        "data_description": {
-          "email": "The email address used to log in to your Caldera Spa account",
-          "password": "The password for your Caldera Spa account"
-        }
-      },
-      "reauth_confirm": {
-        "title": "Reauthenticate Integration",
-        "description": "The credentials for your Caldera Spa account are no longer valid. Please re-enter them to reconnect.",
-        "data": {
-          "email": "Email",
-          "password": "Password"
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "invalid_auth": "Invalid authentication",
+            "invalid_parameters": "Invalid parameters provided",
+            "unknown": "Unexpected error"
         },
-        "data_description": {
-          "email": "The email address used to log in to your Caldera Spa account",
-          "password": "The password for your Caldera Spa account"
+        "flow_title": "{name}",
+        "step": {
+            "reauth_confirm": {
+                "data": {
+                    "email": "Email",
+                    "password": "Password"
+                },
+                "data_description": {
+                    "email": "The email address used to log in to your Caldera Spa account",
+                    "password": "The password for your Caldera Spa account"
+                },
+                "description": "The credentials for your Caldera Spa account are no longer valid. Please re-enter them to reconnect.",
+                "title": "Authentication expired for {name}"
+            },
+            "user": {
+                "data": {
+                    "email": "Email",
+                    "password": "Password"
+                },
+                "data_description": {
+                    "email": "The email address used to log in to your Caldera Spa account",
+                    "password": "The password for your Caldera Spa account"
+                },
+                "description": "Set up your Caldera Spa to integrate with Home Assistant",
+                "title": "Connect to your Caldera Spa"
+            }
         }
-      }
     },
-    "abort": {
-      "already_configured": "Device is already configured",
-      "reauth_successful": "Re-authentication was successful",
-      "wrong_account": "The credentials provided are for a different Caldera Spa than the one originally configured."
+    "entity": {
+        "climate": {
+            "temperature": {
+                "name": "Temperature"
+            }
+        },
+        "light": {
+            "light": {
+                "name": "Light"
+            }
+        },
+        "switch": {
+            "pump_1": {
+                "name": "Pump 1"
+            },
+            "pump_2": {
+                "name": "Pump 2"
+            },
+            "pump_3": {
+                "name": "Pump 3"
+            },
+            "spa_lock": {
+                "name": "Spa lock"
+            },
+            "temperature_lock": {
+                "name": "Temperature lock"
+            }
+        }
     }
-  },
-  "entity": {
-    "climate": {
-      "temperature": {
-        "name": "Temperature"
-      }
-    },
-    "light": {
-      "light": {
-        "name": "Light"
-      }
-    },
-    "switch": {
-      "pump_1": {
-        "name": "Pump 1"
-      },
-      "pump_2": {
-        "name": "Pump 2"
-      },
-      "pump_3": {
-        "name": "Pump 3"
-      },
-      "temperature_lock": {
-        "name": "Temperature lock"
-      },
-      "spa_lock": {
-        "name": "Spa lock"
-      }
-    }
-  }
 }

@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 from pycaldera import AsyncCalderaClient, SpaControlError
 
-from homeassistant.components.light import LightEntity
+from homeassistant.components.light import ColorMode, LightEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
@@ -15,8 +14,6 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import CalderaDataUpdateCoordinator
 from .entity import CalderaEntity
-
-_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
@@ -33,9 +30,11 @@ async def async_setup_entry(
 
 
 class CalderaLight(CalderaEntity, LightEntity):
-    """Caldera Spa light entity."""
+    """Caldera Spa light entity (binary on/off only)."""
 
     _attr_name = "Light"
+    _attr_color_mode = ColorMode.ONOFF
+    _attr_supported_color_modes = {ColorMode.ONOFF}
 
     def __init__(
         self,
