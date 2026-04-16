@@ -7,5 +7,5 @@
   "integration_type": "device",
   "iot_class": "cloud_polling",
   "quality_scale": "bronze",
-  "requirements": ["pycaldera==0.1.1"]
+  "requirements": ["pycaldera==0.1.2"]
 }

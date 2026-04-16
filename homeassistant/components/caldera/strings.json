@@ -50,7 +50,7 @@
         "name": "Light"
       }
     },
-    "switch": {
+    "fan": {
       "pump_1": {
         "name": "Pump 1"
       },
@@ -59,7 +59,9 @@
       },
       "pump_3": {
         "name": "Pump 3"
-      },
+      }
+    },
+    "switch": {
       "temperature_lock": {
         "name": "Temperature lock"
       },

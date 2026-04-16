@@ -50,7 +50,7 @@ class CalderaLight(CalderaEntity, LightEntity):
     @property
     def is_on(self) -> bool:
         """Return True if the light is on."""
-        return self.coordinator.data["settings"].light_status
+        return self.coordinator.data["settings"].usr_set_mz_light == "1041"
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on the light."""

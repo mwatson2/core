@@ -29,10 +29,11 @@ class CalderaEntity(CoordinatorEntity[CalderaDataUpdateCoordinator]):
         # Identify the device by its spa serial number — it is stable
         # across user renames in the Caldera app. The display name
         # still comes from the user-facing spa name.
+        spa_details = status.spaSettings.thingWorxData.SPA_Details
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, status.spaSerialNumber)},
             name=status.spaName,
             manufacturer="Caldera Spas",
-            model=status.spaModel,
+            model=f"{spa_details.Series} {spa_details.Model}",
             serial_number=status.spaSerialNumber,
         )

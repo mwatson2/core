@@ -14,6 +14,7 @@ from .coordinator import CalderaDataUpdateCoordinator
 
 PLATFORMS: list[Platform] = [
     Platform.CLIMATE,
+    Platform.FAN,
     Platform.LIGHT,
     Platform.SWITCH,
 ]

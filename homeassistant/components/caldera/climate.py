@@ -71,7 +71,7 @@ class CalderaClimate(CalderaEntity, ClimateEntity):
     @property
     def current_temperature(self) -> float | None:
         """Return the current temperature."""
-        return self.coordinator.data["status"].ctrl_head_water_temperature
+        return self.coordinator.data["settings"].ctrl_head_water_temperature
 
     @property
     def target_temperature(self) -> float | None:
@@ -81,7 +81,8 @@ class CalderaClimate(CalderaEntity, ClimateEntity):
     @property
     def hvac_action(self) -> HVACAction | None:
         """Return HEATING if the element is firing, IDLE otherwise."""
-        if self.coordinator.data["status"].is_heating:
+        settings = self.coordinator.data["settings"]
+        if settings.ctrl_head_water_temperature < settings.ctrl_head_set_temperature:
             return HVACAction.HEATING
         return HVACAction.IDLE
 
